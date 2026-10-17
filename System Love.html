@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sistema solar de amor</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;1,400&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --space:#050414; --ink:#fdf1f6; --soft:#e9b8cf; --rose:#ff5d8f; --glass:rgba(24,12,38,.62); --line:rgba(255,160,200,.28);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--space:#050414;--ink:#fdf1f6}}
+:root[data-theme="dark"]{--space:#050414;--ink:#fdf1f6}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--space);color:var(--ink);font-family:"Nunito",system-ui,sans-serif;overflow:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+canvas:active{cursor:grabbing}
+header{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);padding:16px 20px;pointer-events:none}
+.brand{display:inline-flex;align-items:center;gap:14px;padding:12px 22px 12px 16px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,rgba(255,93,143,.2),rgba(60,20,90,.5));backdrop-filter:blur(10px);box-shadow:0 0 34px rgba(255,93,143,.25),inset 0 0 18px rgba(255,255,255,.05);opacity:0;transform:translateY(-14px)}
+.ready .brand{animation:drop .9s .1s cubic-bezier(.2,1.2,.3,1) forwards}
+.brand svg{width:36px;height:36px;flex:none;animation:beat 1.6s ease-in-out infinite;filter:drop-shadow(0 0 8px #ff5d8f)}
+.brand .k{display:block;font:italic 400 13px/1 "Fraunces",Georgia,serif;color:var(--soft);margin-bottom:6px}
+h1{margin:0;font:italic 400 clamp(20px,4.2vw,32px)/1.05 "Fraunces",Georgia,serif;background:linear-gradient(100deg,#fff 0%,#ffc2d8 35%,#ff6f9f 55%,#fff 80%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite;filter:drop-shadow(0 0 12px rgba(255,93,143,.45))}
+body:not(.ready) #hint{opacity:0}
+#hint{margin-left:6px}
+#chips,.zoom{transition:opacity 1.2s}
+body:not(.ready) #chips,body:not(.ready) .zoom{opacity:0}
+@keyframes drop{to{opacity:1;transform:none}}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@keyframes shine{from{background-position:100% 0}to{background-position:0% 0}}
+#intro{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:radial-gradient(ellipse at center,rgba(5,4,20,.1),rgba(5,4,20,.78));transition:opacity 1.2s ease;pointer-events:none}
+#intro.out{opacity:0}
+#intro svg{width:clamp(44px,9vw,70px);margin-bottom:18px;opacity:0;animation:rise 1s .1s cubic-bezier(.2,.8,.2,1) forwards,beat 1.6s 1.2s ease-in-out infinite;filter:drop-shadow(0 0 18px #ff5d8f)}
+#ititle .il{font:italic 400 clamp(40px,11vw,104px)/1.08 "Fraunces",Georgia,serif}
+#ititle .il span{display:inline-block;opacity:0;color:#fff3f8;text-shadow:0 0 24px rgba(255,93,143,.85),0 0 64px rgba(255,93,143,.45);animation:rise 1.1s cubic-bezier(.2,.8,.2,1) forwards}
+#ititle .il:last-child span{color:#ff7fa8}
+.rule{height:2px;width:0;margin:20px 0 14px;background:linear-gradient(90deg,transparent,#ff9ec0,transparent);box-shadow:0 0 14px #ff5d8f;animation:grow 1.4s 2s ease-out forwards}
+#intro p{margin:0;font:italic 400 clamp(16px,3.4vw,22px)/1.3 "Fraunces",Georgia,serif;color:var(--soft);opacity:0;animation:rise 1.2s 2.5s ease-out forwards}
+@keyframes rise{from{opacity:0;transform:translateY(34px) scale(.8);filter:blur(12px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes grow{to{width:min(300px,62vw)}}
+#hint{margin:6px 0 0;font-size:14px;color:var(--soft);transition:opacity .6s}
+#hint.off{opacity:0}
+.zoom{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
+button{font:inherit;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(8px);cursor:pointer;transition:transform .15s,background .15s}
+button:hover{background:rgba(255,93,143,.28)} button:active{transform:scale(.92)}
+button:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+.zoom button{width:44px;height:44px;font-size:22px}
+#chips{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;gap:8px;padding:0 14px;overflow-x:auto;justify-content:safe center;scrollbar-width:none}
+#chips button{flex:none;padding:8px 14px;font-size:14px;display:flex;align-items:center;gap:7px}
+#chips i{width:10px;height:10px;border-radius:50%;display:inline-block}
+#chips button.on{background:rgba(255,93,143,.38);border-color:var(--rose)}
+#card{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 68px);width:min(440px,calc(100% - 28px));transform:translate(-50%,20px) scale(.92);opacity:0;pointer-events:none;
+  background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:18px 22px 20px;backdrop-filter:blur(14px);box-shadow:0 0 40px rgba(255,93,143,.25);
+  transition:transform .45s cubic-bezier(.2,1.4,.4,1),opacity .3s;text-align:center}
+#card.show{transform:translate(-50%,0) scale(1);opacity:1;pointer-events:auto}
+#card h2{margin:0 0 8px;font:italic 400 20px/1.2 "Fraunces",Georgia,serif;color:var(--rose)}
+#card p{margin:0;font:400 19px/1.45 "Fraunces",Georgia,serif}
+#x{position:absolute;right:8px;top:6px;width:32px;height:32px;border:0;background:none;font-size:20px;color:var(--soft)}
+@media (prefers-reduced-motion:reduce){#card{transition:opacity .2s}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="intro"><svg viewBox="0 0 128 128"><path d="M64 108C8 68 22 18 64 44c42-26 56 24 0 64z" fill="#ff5d8f"/></svg><div id="ititle"></div><div class="rule"></div><p>Un universo entero, hecho para ti</p></div>
+<header><div class="brand"><svg viewBox="0 0 128 128"><path d="M64 108C8 68 22 18 64 44c42-26 56 24 0 64z" fill="#ff5d8f"/></svg><div><span class="k">Un universo para ti</span><h1>Sistema Solar<br>de Amor</h1></div></div><p id="hint">Arrastra para girar, usa la rueda o pellizca para acercar, y toca planetas, satélites o estrellas.</p></header>
+<div class="zoom"><button id="zi" aria-label="Acercar">+</button><button id="zo" aria-label="Alejar">−</button><button id="zr" aria-label="Vista general">⌂</button></div>
+<div id="card" role="status"><button id="x" aria-label="Cerrar">×</button><h2 id="ct"></h2><p id="cp"></p></div>
+<nav id="chips"></nav>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const P=[
+ {n:"Sol",c:"#ffb43a",r:7,d:0,s:0,t:"Eres el sol que ilumina cada uno de mis días."},
+ {n:"Mercurio",c:"#b9a99a",r:1,d:14,s:1.6,t:"Contigo hasta los segundos más rápidos valen una eternidad."},
+ {n:"Venus",c:"#f0c07a",r:1.8,d:20,s:1.2,t:"Si Venus es el planeta del amor, tú eres mi universo entero."},
+ {n:"Tierra",c:"#4d8cff",r:2,d:27,s:1,t:"De todos los mundos posibles, mi lugar favorito eres tú."},
+ {n:"Marte",c:"#e2603c",r:1.4,d:34,s:.8,t:"Cruzaría la galaxia entera solo para verte sonreír."},
+ {n:"Júpiter",c:"#d9a577",r:4.5,d:48,s:.5,t:"Mi cariño por ti es tan grande como este gigante."},
+ {n:"Saturno",c:"#ead29a",r:3.8,d:62,s:.38,t:"Tú eres el anillo perfecto que le faltaba a mi vida.",ring:1},
+ {n:"Urano",c:"#8ee3e8",r:2.8,d:76,s:.27,t:"Eres única, como un planeta que gira de lado."},
+ {n:"Neptuno",c:"#3f62e8",r:2.7,d:88,s:.2,t:"Aunque estemos lejos, mi corazón siempre orbita a tu lado."},
+ {n:"Aurora",c:"#c07bff",r:3.2,d:102,s:.16,t:"Cada amanecer contigo es una nueva razón para creer que todo es posible."},
+ {n:"Fénix",c:"#ff7a45",r:2.4,d:116,s:.14,t:"Te levantas de cada caída más brillante, y te admiro y te amo por eso."},
+ {n:"Lumina",c:"#5ef2e0",r:2.9,d:130,s:.12,t:"Tu luz no se apaga: puedes iluminar cualquier camino, incluido el mío."},
+ {n:"Estelar",c:"#ff8fc7",r:3.4,d:144,s:.1,t:"Ningún sueño tuyo es demasiado grande: llegarás a las estrellas y yo estaré aplaudiendo."},
+ {n:"Esperanza",c:"#9bff9b",r:2.6,d:158,s:.08,t:"Mientras exista tu sonrisa, cada reto se vuelve pequeño y cada día vale la pena."}
+];
+const cv=document.getElementById("c"),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(55,1,.1,4000);
+function size(){R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}
+addEventListener("resize",size);size();
+
+function tex(draw,w=128,h=128){const k=document.createElement("canvas");k.width=w;k.height=h;draw(k.getContext("2d"),w,h);return new THREE.CanvasTexture(k)}
+const dot=tex((g,w)=>{const a=g.createRadialGradient(64,64,0,64,64,64);a.addColorStop(0,"#fff");a.addColorStop(.3,"rgba(255,255,255,.7)");a.addColorStop(1,"rgba(255,255,255,0)");g.fillStyle=a;g.fillRect(0,0,w,w)});
+const heart=tex((g)=>{g.fillStyle="#ff5d8f";g.shadowColor="#ff9ec0";g.shadowBlur=14;g.beginPath();g.moveTo(64,108);g.bezierCurveTo(8,68,22,18,64,44);g.bezierCurveTo(106,18,120,68,64,108);g.fill()});
+
+// Estrellas: dos capas, una titila
+function stars(n,sz,op){const p=new Float32Array(n*3),col=new Float32Array(n*3),c=new THREE.Color();
+ for(let i=0;i<n;i++){const r=300+Math.random()*1500,a=Math.random()*6.283,b=Math.acos(2*Math.random()-1);
+  p.set([r*Math.sin(b)*Math.cos(a),r*Math.cos(b),r*Math.sin(b)*Math.sin(a)],i*3);
+  c.setHSL([.95,.6,.12][Math.random()*3|0],.5,.75+Math.random()*.25);col.set([c.r,c.g,c.b],i*3)}
+ const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(p,3));g.setAttribute("color",new THREE.BufferAttribute(col,3));
+ const m=new THREE.PointsMaterial({size:sz,map:dot,vertexColors:true,transparent:true,opacity:op,depthWrite:false,blending:THREE.AdditiveBlending});
+ const o=new THREE.Points(g,m);S.add(o);return m}
+const sA=stars(5000,5,.9),sB=stars(1500,9,.8);
+
+S.add(new THREE.AmbientLight(0x404060,.7));
+S.add(new THREE.PointLight(0xfff0d0,2.2,0,1.2));
+
+function bands(hex,gas){return tex((g,w,h)=>{const b=new THREE.Color(hex);
+ for(let y=0;y<h;y++){const l=gas?(Math.sin(y*.35)+Math.sin(y*.9)*.5)*.06:(Math.random()-.5)*.1;
+  const k=b.clone().offsetHSL(0,0,l);g.fillStyle="#"+k.getHexString();g.fillRect(0,y,w,1)}
+ if(!gas)for(let i=0;i<60;i++){g.fillStyle="rgba(0,0,0,.08)";g.beginPath();g.arc(Math.random()*w,Math.random()*h,Math.random()*8,0,6.3);g.fill()}},256,128)}
+
+const hits=[],OM=[],waves=[],X=[],CM=[],ringT=tex((g)=>{g.strokeStyle="#fff";g.lineWidth=7;g.shadowColor="#fff";g.shadowBlur=16;g.beginPath();g.arc(64,64,46,0,6.3);g.stroke()});
+P.forEach((p,i)=>{
+ p.g=new THREE.Group();S.add(p.g);
+ const mat=i?new THREE.MeshStandardMaterial({map:bands(p.c,p.r>2.5),roughness:.85}):new THREE.MeshBasicMaterial({map:bands(p.c,true)});
+ p.m=new THREE.Mesh(new THREE.SphereGeometry(p.r,48,32),mat);p.g.add(p.m);
+ const h=new THREE.Mesh(new THREE.SphereGeometry(Math.max(p.r*1.6,2.6),8,6),new THREE.MeshBasicMaterial({visible:false}));h.userData.i=i;p.g.add(h);hits.push(h);
+ if(!i){const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:dot,color:0xffa030,blending:THREE.AdditiveBlending,depthWrite:false}));gl.scale.setScalar(32);p.g.add(gl)}
+ else{const pts=[];for(let k=0;k<=128;k++){const a=k/128*6.2832;pts.push(new THREE.Vector3(Math.cos(a)*p.d,0,Math.sin(a)*p.d))}
+  const lm=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.95,blending:THREE.AdditiveBlending});S.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lm));OM.push([lm,.55,.45]);
+  [[.35,.12,.4],[1.3,.05,.2]].forEach(([w,b,x])=>{const gm=new THREE.MeshBasicMaterial({color:0xffffff,side:2,transparent:true,opacity:b,blending:THREE.AdditiveBlending,depthWrite:false});const gw=new THREE.Mesh(new THREE.RingGeometry(p.d-w,p.d+w,128),gm);gw.rotation.x=Math.PI/2;S.add(gw);OM.push([gm,b,x])});
+  p.a=Math.random()*6.28}
+ if(p.ring){const rg=new THREE.Mesh(new THREE.RingGeometry(p.r*1.4,p.r*2.3,64),new THREE.MeshBasicMaterial({color:0xd9c38a,side:2,transparent:true,opacity:.7}));rg.rotation.x=Math.PI/2.4;p.g.add(rg)}
+ p.t0=0;p.k=0;p.au=new THREE.Sprite(new THREE.SpriteMaterial({map:dot,color:p.c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0}));p.au.scale.setScalar(p.r*6);p.g.add(p.au);
+});
+
+// Interfaz
+const chips=document.getElementById("chips"),card=document.getElementById("card"),ct=document.getElementById("ct"),cp=document.getElementById("cp"),hint=document.getElementById("hint");
+P.forEach((p,i)=>{const b=document.createElement("button");b.innerHTML='<i style="background:'+p.c+'"></i>'+p.n;b.onclick=()=>pick(i);chips.appendChild(b);p.b=b});
+let focus=null,hearts=[];
+function pick(i){
+ focus=P[i];radGoal=Math.max(focus.r*4.5+4,9);P.concat(X).forEach(q=>q.b.classList.toggle("on",q===focus));
+ focus.t0=1;focus.k=1;ct.textContent=focus.n;cp.textContent="“"+focus.t+"”";card.classList.remove("show");void card.offsetWidth;card.classList.add("show");
+ const pos=new THREE.Vector3();focus.g.getWorldPosition(pos);
+ for(let k=0;k<16;k++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:heart,transparent:true,depthWrite:false}));
+  s.position.copy(pos).add(new THREE.Vector3((Math.random()-.5)*focus.r*2,(Math.random()-.5)*focus.r,(Math.random()-.5)*focus.r*2));
+  const z=.8+Math.random()*1.2;s.scale.setScalar(z);S.add(s);hearts.push({s,v:.05+Math.random()*.08,l:1,dx:(Math.random()-.5)*.04})}
+ for(let w=0;w<3;w++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:ringT,color:focus.c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0}));s.userData={t:-w*.25,r:focus.r};focus.g.add(s);waves.push(s)}
+ quiet();
+}
+function home(){focus=null;radGoal=320;card.classList.remove("show");P.concat(X).forEach(q=>q.b.classList.remove("on"))}
+function quiet(){hint.classList.add("off")}
+document.getElementById("x").onclick=home;
+document.getElementById("zr").onclick=home;
+document.getElementById("zi").onclick=()=>{radGoal=Math.max(3,radGoal*.7);quiet()};
+document.getElementById("zo").onclick=()=>{radGoal=Math.min(700,radGoal/.7);quiet()};
+
+// Extras: constelaciones, estrellas y satélites
+const starT=tex((g)=>{g.translate(64,64);const a=g.createRadialGradient(0,0,0,0,0,64);a.addColorStop(0,'rgba(255,255,255,1)');a.addColorStop(.2,'rgba(255,255,255,.7)');a.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=a;g.beginPath();for(let i=0;i<8;i++){const r=i%2?8:62,an=i*Math.PI/4;g.lineTo(Math.cos(an)*r,Math.sin(an)*r)}g.closePath();g.fill();g.beginPath();g.arc(0,0,16,0,6.3);g.fill()});
+function chip(o,ic){const b=document.createElement('button');b.innerHTML='<span style="color:'+o.c+'">'+ic+'</span>'+o.n;b.onclick=()=>pickX(o);chips.appendChild(b);o.b=b}
+function constel(nm,az,el,sc,pts,ed){const dir=new THREE.Vector3(Math.cos(el)*Math.cos(az),Math.sin(el),Math.cos(el)*Math.sin(az)),rt=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),dir).normalize(),up=new THREE.Vector3().crossVectors(dir,rt).normalize();
+ const V=pts.map(([x,y])=>dir.clone().multiplyScalar(1000).addScaledVector(rt,x*sc).addScaledVector(up,y*sc));
+ S.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(V),new THREE.PointsMaterial({size:28,map:dot,color:0xe6f2ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false})));
+ const sg=[];ed.forEach(([a,b])=>sg.push(V[a],V[b]));
+ const lm=new THREE.LineBasicMaterial({color:0xa8c8ff,transparent:true,opacity:.5,blending:THREE.AdditiveBlending});CM.push(lm);
+ S.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(sg),lm));
+ const mn=Math.min(...pts.map(p=>p[1])),lt=tex((g,w,h)=>{g.font='italic 34px Georgia,serif';g.textAlign='center';g.fillStyle='#d6e6ff';g.shadowColor='#8fb8ff';g.shadowBlur=12;g.fillText(nm,w/2,h/2+10)},256,64);
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:lt,transparent:true,opacity:.8,depthWrite:false,blending:THREE.AdditiveBlending}));sp.scale.set(220,55,1);sp.position.copy(dir).multiplyScalar(1000).addScaledVector(up,(mn-1.8)*sc);S.add(sp)}
+[['Orión',.3,.35,70,[[-1,2.2],[1,2],[-.35,.1],[0,0],[.35,-.1],[-1,-2.2],[1.1,-2]],[[0,1],[0,2],[1,4],[2,3],[3,4],[2,5],[4,6]]],
+ ['Osa Mayor',2,.55,60,[[-3,1],[-1.8,.6],[-.6,.3],[.6,0],[.9,-1.2],[2.6,-1.3],[2.8,.2]],[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]],
+ ['Casiopea',3.5,.3,70,[[-2,0],[-1,1],[0,-.2],[1,1],[2,0]],[[0,1],[1,2],[2,3],[3,4]]],
+ ['Cruz del Sur',5,-.35,70,[[0,2],[0,-2],[-1.5,0],[1.5,.2]],[[0,1],[2,3]]],
+ ['Escorpio',1.2,-.45,60,[[-3,2],[-2,1.2],[-1,.6],[0,0],[1,-.8],[1.6,-2],[1,-3],[.2,-3.3],[-.4,-2.6]],[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]],
+ ['Corazón',5.7,.5,80,[[0,-2],[-1.5,-.6],[-2.2,.6],[-1.4,1.6],[-.5,1.4],[0,.6],[.5,1.4],[1.4,1.6],[2.2,.6],[1.5,-.6]],[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,0]]]
+].forEach(c=>constel(...c));
+// Satélites (giran alrededor de sus planetas)
+[[3,'Luna','#d8d8e0',.55,.9,'Aunque brilles de noche, tu luz propia es mucho más fuerte.'],
+ [4,'Fobos','#b08a70',.3,1.3,'Pequeño pero valiente: así eres tú, y por eso te admiro.'],
+ [5,'Europa','#e8e0d0',.6,.7,'Bajo el hielo hay un océano, y bajo tu calma hay una fuerza inmensa.'],
+ [6,'Titán','#e8a84a',.65,.6,'Eres imparable: cada reto es solo otra órbita que aprenderás a dominar.'],
+ [7,'Titania','#a8c8d8',.45,.8,'Con cada intento aprendes más, y me llena de orgullo verte crecer.'],
+ [8,'Tritón','#cfe6ff',.5,.7,'Aunque el camino sea frío y largo, mi amor siempre te acompaña.'],
+ [9,'Cupido','#ff6fa8',.5,1,'Soy el satélite de tu felicidad: te cuido, te animo y te mando todo mi amor.']
+].forEach(([pi,n,c,r,sp,t],i)=>{const p=P[pi],od=p.r*2.4+1.6;
+ const tg=new THREE.Group();tg.rotation.x=(i%3-1)*.35;tg.rotation.z=i%2?.2:-.2;p.g.add(tg);
+ const pts=[];for(let k=0;k<=96;k++){const a=k/96*6.2832;pts.push(new THREE.Vector3(Math.cos(a)*od,0,Math.sin(a)*od))}
+ tg.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.3,blending:THREE.AdditiveBlending})));
+ const o={n,c,t,ty:'sat',r,sp,od,a:Math.random()*6.28,k:0,t0:0,g:new THREE.Group()};tg.add(o.g);
+ o.m=new THREE.Mesh(new THREE.SphereGeometry(r,24,16),new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.35,roughness:.7}));
+ o.au=new THREE.Sprite(new THREE.SpriteMaterial({map:dot,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0}));o.au.scale.setScalar(r*7);
+ const h=new THREE.Mesh(new THREE.SphereGeometry(Math.max(r*3,1.4),8,6),new THREE.MeshBasicMaterial({visible:false}));h.userData.o=o;
+ o.g.add(o.m,o.au,h);hits.push(h);X.push(o);chip(o,'◉')});
+// Estrellas interactivas (más allá de las órbitas)
+[['Sirio','#bfe4ff',200,.5,30,'Brillas tanto que hasta de noche haces que todo parezca día.'],
+ ['Vega','#ffd1f0',215,1.9,-25,'Si crees en ti la mitad de lo que yo creo, nadie podrá detenerte.'],
+ ['Altair','#fff2b0',190,3.1,45,'Cada paso que das, por pequeño que sea, te acerca a tu sueño.'],
+ ['Rigel','#9fc4ff',225,4.3,-40,'Eres fuerte, eres capaz y eres amada: nunca lo olvides.'],
+ ['Antares','#ff9a8a',205,5.4,20,'Mi corazón late al ritmo de tus metas y siempre estaré para celebrarlas.'],
+ ['Estrella Polar','#ffffff',235,.9,60,'Pase lo que pase, contigo siempre encuentro mi camino.']
+].forEach(([n,c,d,az,y,t],i)=>{const o={n,c,t,ty:'star',r:3,k:0,t0:0,ph:i*1.7,g:new THREE.Group()};o.g.position.set(Math.cos(az)*d,y,Math.sin(az)*d);S.add(o.g);
+ o.au=new THREE.Sprite(new THREE.SpriteMaterial({map:dot,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.5}));
+ o.core=new THREE.Sprite(new THREE.SpriteMaterial({map:starT,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));
+ const h=new THREE.Mesh(new THREE.SphereGeometry(6,8,6),new THREE.MeshBasicMaterial({visible:false}));h.userData.o=o;
+ o.g.add(o.au,o.core,h);hits.push(h);X.push(o);chip(o,'★')});
+function pickX(o){focus=o;radGoal=o.ty=='sat'?o.r*10+4:o.r*5+6;P.concat(X).forEach(q=>q.b.classList.toggle('on',q===o));
+ o.t0=1;o.k=1;ct.textContent=o.n;cp.textContent='“'+o.t+'”';card.classList.remove('show');void card.offsetWidth;card.classList.add('show');
+ const pos=new THREE.Vector3(),z0=Math.max(o.r,1);o.g.getWorldPosition(pos);
+ for(let i=0;i<16;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:heart,transparent:true,depthWrite:false}));s.position.copy(pos).add(new THREE.Vector3((Math.random()-.5)*z0*2,(Math.random()-.5)*z0,(Math.random()-.5)*z0*2));s.scale.setScalar(o.ty=='sat'?.5+Math.random()*.5:.8+Math.random()*1.2);S.add(s);hearts.push({s,v:.05+Math.random()*.08,l:1,dx:(Math.random()-.5)*.04})}
+ for(let w=0;w<3;w++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:ringT,color:o.c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0}));s.userData={t:-w*.25,r:o.ty=='sat'?o.r*2.5:o.r};o.g.add(s);waves.push(s)}
+ quiet()}
+function updX(dt,t){CM.forEach((m,i)=>m.opacity=.42+.18*Math.sin(t*1.3+i));
+ X.forEach(o=>{o.k=Math.max(0,o.k-dt*.45);o.t0=Math.max(0,o.t0-dt*1.3);const pl=Math.sin(o.t0*Math.PI);let ta;
+  if(o.ty=='star'){const tw=1+.18*Math.sin(t*2.2+o.ph);o.core.scale.setScalar(o.r*3.4*tw*(1+1.4*pl)*(1+o.k*.6));o.core.material.rotation+=dt*(.25+3*o.k);ta=.55+.15*Math.sin(t*1.7+o.ph)+o.k*.8+(o===focus?.25:0);o.au.scale.setScalar(o.r*7*(1+1.6*o.k))}
+  else{o.a+=o.sp*dt*.5;o.g.position.set(Math.cos(o.a)*o.od,0,Math.sin(o.a)*o.od);o.m.rotation.y+=dt;o.m.scale.setScalar(1+.7*pl);ta=(o===focus?.4:0)+o.k*.9;o.au.scale.setScalar(o.r*(7+5*o.k))}
+  o.au.material.opacity+=(ta-o.au.material.opacity)*.15})}
+// Cámara orbital con zoom
+const tgt=new THREE.Vector3(),goal=new THREE.Vector3();let th=.8,ph=1.15,rad=1100,radGoal=320,intro=true;
+const zoom=f=>{radGoal=Math.min(700,Math.max(3,radGoal*f))};
+cv.addEventListener("wheel",e=>{e.preventDefault();zoom(Math.exp(e.deltaY*.0012));quiet()},{passive:false});
+const ptr=new Map();let moved=0,pd=0;
+cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);moved=0;if(ptr.size==2){const [a,b]=[...ptr.values()];pd=Math.hypot(a[0]-b[0],a[1]-b[1])}});
+cv.addEventListener("pointermove",e=>{const o=ptr.get(e.pointerId);if(!o)return;
+ if(ptr.size==2){ptr.set(e.pointerId,[e.clientX,e.clientY]);const [a,b]=[...ptr.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pd)zoom(pd/d);pd=d;moved=99;quiet();return}
+ const dx=e.clientX-o[0],dy=e.clientY-o[1];moved+=Math.abs(dx)+Math.abs(dy);th-=dx*.006;ph=Math.min(3.05,Math.max(.08,ph-dy*.006));ptr.set(e.pointerId,[e.clientX,e.clientY]);if(moved>6)quiet()});
+const ray=new THREE.Raycaster(),m2=new THREE.Vector2();
+cv.addEventListener("pointerup",e=>{const single=ptr.size==1;ptr.delete(e.pointerId);if(ptr.size<2)pd=0;
+ if(single&&moved<8){m2.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(m2,C);
+  const h=ray.intersectObjects(hits)[0];if(h){const u=h.object.userData;u.o?pickX(u.o):pick(u.i)}}});
+cv.addEventListener("pointercancel",e=>{ptr.delete(e.pointerId);pd=0});
+
+const clk=new THREE.Clock(),v=new THREE.Vector3();
+(function loop(){requestAnimationFrame(loop);const dt=Math.min(clk.getDelta(),.05),t=clk.elapsedTime;
+ P.forEach((p,i)=>{if(i){p.a+=p.s*dt*.15;p.g.position.set(Math.cos(p.a)*p.d,0,Math.sin(p.a)*p.d)}
+  p.m.rotation.y+=dt*(i?.6:.1);
+  p.k=Math.max(0,p.k-dt*.4);const ta=(p===focus?.4:0)+p.k*.9;p.au.material.opacity+=(ta-p.au.material.opacity)*.15;p.au.scale.setScalar(p.r*(6+4*p.k));
+  if(p.t0>0){p.t0=Math.max(0,p.t0-dt*1.3);p.m.scale.setScalar(1+.5*Math.sin(p.t0*Math.PI)*(p.t0>.02?1:0))}});
+ hearts=hearts.filter(h=>{h.l-=dt*.5;h.s.position.y+=h.v;h.s.position.x+=h.dx;h.s.material.opacity=Math.max(0,h.l);if(h.l<=0){S.remove(h.s);h.s.material.dispose();return false}return true});
+ sA.opacity=.75+.2*Math.sin(t*1.7);sB.opacity=.6+.35*Math.sin(t*2.9+1);
+ const k=Math.min(1,Math.max(0,(480-rad)/330)),pu=.88+.12*Math.sin(t*2.2);OM.forEach(o=>o[0].opacity=Math.min(1,(o[1]+o[2]*k)*pu));
+ for(let i=waves.length-1;i>=0;i--){const s=waves[i],d=s.userData;d.t+=dt;if(d.t<0)continue;const u=d.t/1.7;if(u>=1){s.parent.remove(s);s.material.dispose();waves.splice(i,1);continue}s.scale.setScalar(d.r*(2.5+u*10));s.material.opacity=(1-u)*.9}
+ updX(dt,t);if(focus)focus.g.getWorldPosition(goal);else goal.set(0,0,0);
+ tgt.lerp(goal,.08);rad+=(radGoal-rad)*(intro?.014:.08);if(intro)th+=dt*.35;
+ C.position.set(tgt.x+rad*Math.sin(ph)*Math.cos(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.sin(th));C.lookAt(tgt);
+ if(!focus&&!ptr.size)th+=dt*.03;
+ R.render(S,C)})();
+(function(){const el=document.getElementById("ititle");let n=0;
+["Sistema Solar","de Amor"].forEach(t=>{const d=document.createElement("div");d.className="il";[...t].forEach(ch=>{const s=document.createElement("span");s.textContent=ch===" "?"\u00a0":ch;s.style.animationDelay=(.4+n++*.07)+"s";d.appendChild(s)});el.appendChild(d)});
+setTimeout(()=>{document.getElementById("intro").classList.add("out");document.body.classList.add("ready")},4300);
+setTimeout(()=>{intro=false;document.getElementById("intro").remove()},5600)})();
+</script>
+</body>
+</html>
